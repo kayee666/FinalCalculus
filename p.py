@@ -99,6 +99,8 @@ texts = {
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
         "surface_select": "Choose a surface:",
         "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
+        "plot_type_select": "Choose plot type:",
+        "plot_types": ["Surface", "Wireframe"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
@@ -127,6 +129,8 @@ texts = {
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
         "surface_select": "Pilih permukaan:",
         "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
+        "plot_type_select": "Pilih jenis plot:",
+        "plot_types": ["Permukaan", "Wireframe"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
@@ -208,10 +212,10 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D surface with Plotly or fallback to matplotlib
-def plot_3d_surface(surface_type):
-    x = np.linspace(-5, 5, 100)
-    y = np.linspace(-5, 5, 100)
+# Function to plot 3D surface or wireframe with Plotly or fallback to matplotlib
+def plot_3d_surface(surface_type, plot_type):
+    x = np.linspace(-5, 5, 50)
+    y = np.linspace(-5, 5, 50)
     X, Y = np.meshgrid(x, y)
     
     if surface_type == "x² + y²":
@@ -230,9 +234,17 @@ def plot_3d_surface(surface_type):
         Z = X**3 + Y**3
     
     if plotly_available:
-        fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
+        if plot_type == "Surface" or plot_type == "Permukaan":
+            fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
+        else:  # Wireframe
+            # Create wireframe by plotting lines
+            fig = go.Figure()
+            for i in range(len(x)):
+                fig.add_trace(go.Scatter3d(x=X[i, :], y=Y[i, :], z=Z[i, :], mode='lines', line=dict(color='blue', width=2)))
+            for j in range(len(y)):
+                fig.add_trace(go.Scatter3d(x=X[:, j], y=Y[:, j], z=Z[:, j], mode='lines', line=dict(color='blue', width=2)))
         fig.update_layout(
-            title="Realistic 3D Surface Plot (Interactive)",
+            title="3D Plot (Interactive)",
             scene=dict(
                 xaxis_title='x',
                 yaxis_title='y',
@@ -245,11 +257,14 @@ def plot_3d_surface(surface_type):
     else:
         fig = plt.figure(figsize=(7, 5))
         ax = fig.add_subplot(111, projection="3d")
-        ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
+        if plot_type == "Surface" or plot_type == "Permukaan":
+            ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
+        else:  # Wireframe
+            ax.plot_wireframe(X, Y, Z, color='blue', linewidth=1)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_zlabel("z")
-        ax.set_title("3D Surface Plot (Static)")
+        ax.set_title("3D Plot (Static)")
         st.pyplot(fig)
 
 # Function to analyze story-based problem
@@ -321,7 +336,8 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.header("🌐 3D Surface Plotting")
 surface_type = st.selectbox(current_texts["surface_select"], current_texts["surfaces"])
-plot_3d_surface(surface_type)
+plot_type = st.selectbox(current_texts["plot_type_select"], current_texts["plot_types"])
+plot_3d_surface(surface_type, plot_type)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Optimization Section
