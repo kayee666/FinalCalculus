@@ -107,12 +107,12 @@ texts = {
         "derivative_button": "Compute and Plot Derivative",
         "3d_button": "Plot 3D Interactive Curve",
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
-        "derivative_order": "Derivative Order:",
+        "derivative_input": "Enter derivative function of x (e.g., lambda x: 2*x + 3):",
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
         "solve_story_button": "Solve Story-Based Problem",
-        "3d_title": "3D Interactive Curve f(x) & f^(n)(x)",
+        "3d_title": "3D Interactive Curve f(x) & Custom Derivative",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
@@ -135,12 +135,12 @@ texts = {
         "derivative_button": "Hitung dan Plot Turunan",
         "3d_button": "Plot Kurva Interaktif 3D",
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
-        "derivative_order": "Orde Turunan:",
+        "derivative_input": "Masukkan fungsi turunan dari x (contoh: lambda x: 2*x + 3):",
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
         "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
-        "3d_title": "Kurva Interaktif 3D f(x) & f^(n)(x)",
+        "3d_title": "Kurva Interaktif 3D f(x) & Turunan Kustom",
         "members_title": "Penggemar Kalkulus Kami",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
@@ -179,13 +179,6 @@ with st.sidebar.expander(current_texts["members_title"] + " 🧠"):
 # Main title and subtitle
 st.title(current_texts["title"])
 st.markdown(current_texts["subtitle"])
-
-# Function to compute nth derivative
-def compute_derivative(y_vals, x_vals, order):
-    deriv = y_vals
-    for _ in range(order):
-        deriv = np.gradient(deriv, x_vals)
-    return deriv
 
 # Function to plot 2D function
 def plot_2d_function(func_str):
@@ -226,12 +219,13 @@ def plot_derivative(func_str):
         st.error(f"Error plotting derivative: {e}")
 
 # Function to plot 3D interactive curve
-def plot_3d_interactive(func_str, deriv_order):
+def plot_3d_interactive(func_str, deriv_str):
     try:
         func = eval(func_str)
+        deriv_func = eval(deriv_str)
         x_vals = np.linspace(-10, 10, 400)
         y_vals = func(x_vals)
-        dy_vals = compute_derivative(y_vals, x_vals, deriv_order)
+        dy_vals = deriv_func(x_vals)
         z_vals = np.zeros_like(x_vals)
         z_vals2 = np.ones_like(x_vals)
 
@@ -240,7 +234,7 @@ def plot_3d_interactive(func_str, deriv_order):
             fig3d.add_trace(go.Scatter3d(x=x_vals, y=y_vals, z=z_vals, mode='lines',
                                          line=dict(color='lightblue', width=5), name='f(x)'))
             fig3d.add_trace(go.Scatter3d(x=x_vals, y=dy_vals, z=z_vals2, mode='lines',
-                                         line=dict(color='pink', width=5), name=f"f^{deriv_order}(x)"))
+                                         line=dict(color='pink', width=5), name='Custom Derivative'))
             fig3d.update_layout(scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='Curve ID',
                                            bgcolor='rgba(0,0,0,0)'),
                                 margin=dict(l=0, r=0, b=0, t=0), height=600)
@@ -319,10 +313,10 @@ st.markdown('</div>', unsafe_allow_html=True)
 # 3D Interactive Curve Plotting Section
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.header("🌐 3D Interactive Curve Plotting")
-deriv_order = st.number_input(current_texts["derivative_order"], min_value=1, max_value=5, value=1, step=1)
+deriv_str = st.text_input(current_texts["derivative_input"], "lambda x: 2*x")
 st.markdown("<div class='sub-box'>", unsafe_allow_html=True)
 st.subheader(current_texts["3d_title"])
-plot_3d_interactive(func_str, deriv_order)
+plot_3d_interactive(func_str, deriv_str)
 st.markdown("</div>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
