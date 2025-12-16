@@ -95,10 +95,10 @@ texts = {
         "opt_select": "Select a problem:",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
-            {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
-            {"name": "Nailah Nurramadhanti", "image": "https://via.placeholder.com/60x60?text=NAILAH", "role": "Member"},
-            {"name": "Suci Khadijah Siregar", "image": "https://via.placeholder.com/60x60?text=SUCI", "role": "Member"},
-            {"name": "Salsabila Cantika", "image": "https://via.placeholder.com/60x60?text=CANTIKA", "role": "Member"}
+            {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
+            {"name": "Nailah Nurramadhanti", "image": "sayang.jpg", "role": "Member"},
+            {"name": "Suci Khadijah Siregar", "image": "suci.jpg", "role": "Member"},
+            {"name": "Salsabila Cantika", "image": "cantika.jpg", "role": "Member"}
         ],
         "problems": {
             "area": "Maximize area of a rectangle with fixed perimeter.",
@@ -270,3 +270,4 @@ st.header("⚖ " + current_texts["opt_title"])
 problem = st.selectbox(current_texts["opt_select"], list(current_texts["problems"].keys()), format_func=lambda x: current_texts["problems"][x])
 solve_optimization(problem, lang)
 st.markdown('</div>', unsafe_allow_html=True)
+
