@@ -3,6 +3,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import re
+import plotly.graph_objects as go
 
 # Set page config for theme
 st.set_page_config(
@@ -91,13 +92,11 @@ texts = {
         "3d_button": "Plot 3D Surface",
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
         "surface_select": "Choose a surface:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))"],
+        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
         "solve_story_button": "Solve Story-Based Problem",
-        "elevation": "Elevation Angle:",
-        "azimuth": "Azimuth Angle:",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
@@ -121,13 +120,11 @@ texts = {
         "3d_button": "Plot Permukaan 3D",
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
         "surface_select": "Pilih permukaan:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))"],
+        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
         "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
-        "elevation": "Sudut Elevasi:",
-        "azimuth": "Sudut Azimuth:",
         "members_title": "Penggemar Kalkulus Kami",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
@@ -205,10 +202,10 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D surface with rotation controls
-def plot_3d_surface(surface_type, elev, azim):
-    x = np.linspace(-5, 5, 50)
-    y = np.linspace(-5, 5, 50)
+# Function to plot 3D surface with Plotly for realism
+def plot_3d_surface(surface_type):
+    x = np.linspace(-5, 5, 100)
+    y = np.linspace(-5, 5, 100)
     X, Y = np.meshgrid(x, y)
     
     if surface_type == "x² + y²":
@@ -219,18 +216,25 @@ def plot_3d_surface(surface_type, elev, azim):
         Z = X * Y
     elif surface_type == "x² - y²":
         Z = X**2 - Y**2
-    else:  # "e^(-(x² + y²))"
+    elif surface_type == "e^(-(x² + y²))":
         Z = np.exp(-(X**2 + Y**2))
+    elif surface_type == "cos(x² + y²)":
+        Z = np.cos(X**2 + Y**2)
+    else:  # "x³ + y³"
+        Z = X**3 + Y**3
     
-    fig = plt.figure(figsize=(7, 5))
-    ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
-    ax.view_init(elev=elev, azim=azim)
-    ax.set_xlabel("x")
-    ax.set_ylabel("y")
-    ax.set_zlabel("z")
-    ax.set_title("3D Surface Plot (Rotatable)")
-    st.pyplot(fig)
+    fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
+    fig.update_layout(
+        title="Realistic 3D Surface Plot (Interactive)",
+        scene=dict(
+            xaxis_title='x',
+            yaxis_title='y',
+            zaxis_title='z',
+            camera=dict(eye=dict(x=1.25, y=1.25, z=1.25))
+        ),
+        margin=dict(l=0, r=0, b=0, t=40)
+    )
+    st.plotly_chart(fig, use_container_width=True)
 
 # Function to analyze story-based problem
 def analyze_problem(text, lang):
@@ -301,9 +305,7 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.header("🌐 3D Surface Plotting")
 surface_type = st.selectbox(current_texts["surface_select"], current_texts["surfaces"])
-elev = st.slider(current_texts["elevation"], min_value=0, max_value=90, value=30, step=5)
-azim = st.slider(current_texts["azimuth"], min_value=0, max_value=360, value=45, step=15)
-plot_3d_surface(surface_type, elev, azim)
+plot_3d_surface(surface_type)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Optimization Section
