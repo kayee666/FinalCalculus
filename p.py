@@ -91,11 +91,13 @@ texts = {
         "3d_button": "Plot 3D Surface",
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
         "surface_select": "Choose a surface:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y"],
+        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
         "solve_story_button": "Solve Story-Based Problem",
+        "elevation": "Elevation Angle:",
+        "azimuth": "Azimuth Angle:",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
@@ -119,11 +121,13 @@ texts = {
         "3d_button": "Plot Permukaan 3D",
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
         "surface_select": "Pilih permukaan:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y"],
+        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
         "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
+        "elevation": "Sudut Elevasi:",
+        "azimuth": "Sudut Azimuth:",
         "members_title": "Penggemar Kalkulus Kami",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
@@ -201,8 +205,8 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D surface
-def plot_3d_surface(surface_type):
+# Function to plot 3D surface with rotation controls
+def plot_3d_surface(surface_type, elev, azim):
     x = np.linspace(-5, 5, 50)
     y = np.linspace(-5, 5, 50)
     X, Y = np.meshgrid(x, y)
@@ -211,16 +215,21 @@ def plot_3d_surface(surface_type):
         Z = X**2 + Y**2
     elif surface_type == "sin(x) + cos(y)":
         Z = np.sin(X) + np.cos(Y)
-    else:  # "x · y"
+    elif surface_type == "x · y":
         Z = X * Y
+    elif surface_type == "x² - y²":
+        Z = X**2 - Y**2
+    else:  # "e^(-(x² + y²))"
+        Z = np.exp(-(X**2 + Y**2))
     
     fig = plt.figure(figsize=(7, 5))
     ax = fig.add_subplot(111, projection="3d")
-    ax.plot_surface(X, Y, Z, cmap="viridis", edgecolor="none")
+    ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
+    ax.view_init(elev=elev, azim=azim)
     ax.set_xlabel("x")
     ax.set_ylabel("y")
     ax.set_zlabel("z")
-    ax.set_title("3D Surface Plot")
+    ax.set_title("3D Surface Plot (Rotatable)")
     st.pyplot(fig)
 
 # Function to analyze story-based problem
@@ -292,7 +301,9 @@ st.markdown('</div>', unsafe_allow_html=True)
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.header("🌐 3D Surface Plotting")
 surface_type = st.selectbox(current_texts["surface_select"], current_texts["surfaces"])
-plot_3d_surface(surface_type)
+elev = st.slider(current_texts["elevation"], min_value=0, max_value=90, value=30, step=5)
+azim = st.slider(current_texts["azimuth"], min_value=0, max_value=360, value=45, step=15)
+plot_3d_surface(surface_type, elev, azim)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Optimization Section
