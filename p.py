@@ -3,7 +3,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
 import re
-import plotly.graph_objects as go
+
+try:
+    import plotly.graph_objects as go
+    plotly_available = True
+except ImportError:
+    plotly_available = False
+    st.warning("Plotly is not installed. Using matplotlib for 3D plots. Install Plotly with 'pip install plotly' for better interactivity.")
 
 # Set page config for theme
 st.set_page_config(
@@ -202,7 +208,7 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D surface with Plotly for realism
+# Function to plot 3D surface with Plotly or fallback to matplotlib
 def plot_3d_surface(surface_type):
     x = np.linspace(-5, 5, 100)
     y = np.linspace(-5, 5, 100)
@@ -223,18 +229,28 @@ def plot_3d_surface(surface_type):
     else:  # "x³ + y³"
         Z = X**3 + Y**3
     
-    fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
-    fig.update_layout(
-        title="Realistic 3D Surface Plot (Interactive)",
-        scene=dict(
-            xaxis_title='x',
-            yaxis_title='y',
-            zaxis_title='z',
-            camera=dict(eye=dict(x=1.25, y=1.25, z=1.25))
-        ),
-        margin=dict(l=0, r=0, b=0, t=40)
-    )
-    st.plotly_chart(fig, use_container_width=True)
+    if plotly_available:
+        fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
+        fig.update_layout(
+            title="Realistic 3D Surface Plot (Interactive)",
+            scene=dict(
+                xaxis_title='x',
+                yaxis_title='y',
+                zaxis_title='z',
+                camera=dict(eye=dict(x=1.25, y=1.25, z=1.25))
+            ),
+            margin=dict(l=0, r=0, b=0, t=40)
+        )
+        st.plotly_chart(fig, use_container_width=True)
+    else:
+        fig = plt.figure(figsize=(7, 5))
+        ax = fig.add_subplot(111, projection="3d")
+        ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
+        ax.set_xlabel("x")
+        ax.set_ylabel("y")
+        ax.set_zlabel("z")
+        ax.set_title("3D Surface Plot (Static)")
+        st.pyplot(fig)
 
 # Function to analyze story-based problem
 def analyze_problem(text, lang):
