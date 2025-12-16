@@ -95,12 +95,10 @@ texts = {
         "function_input": "Enter a function of x (e.g., lambda x: x**2 + 3*x + 1):",
         "plot_button": "Plot 2D Function",
         "derivative_button": "Compute and Plot Derivative",
-        "3d_button": "Plot 3D Surface",
+        "3d_button": "Plot 3D Curve",
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
-        "surface_select": "Choose a surface:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
-        "plot_type_select": "Choose plot type:",
-        "plot_types": ["Surface", "Wireframe"],
+        "curve_select": "Choose a curve:",
+        "curves": ["Helix", "Torus Knot", "Viviani's Curve", "Lissajous 3D"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
@@ -125,12 +123,10 @@ texts = {
         "function_input": "Masukkan fungsi dari x (contoh: lambda x: x**2 + 3*x + 1):",
         "plot_button": "Plot Fungsi 2D",
         "derivative_button": "Hitung dan Plot Turunan",
-        "3d_button": "Plot Permukaan 3D",
+        "3d_button": "Plot Kurva 3D",
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
-        "surface_select": "Pilih permukaan:",
-        "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y", "x² - y²", "e^(-(x² + y²))", "cos(x² + y²)", "x³ + y³"],
-        "plot_type_select": "Pilih jenis plot:",
-        "plot_types": ["Permukaan", "Wireframe"],
+        "curve_select": "Pilih kurva:",
+        "curves": ["Helix", "Torus Knot", "Kurva Viviani", "Lissajous 3D"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
@@ -212,39 +208,31 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D surface or wireframe with Plotly or fallback to matplotlib
-def plot_3d_surface(surface_type, plot_type):
-    x = np.linspace(-5, 5, 50)
-    y = np.linspace(-5, 5, 50)
-    X, Y = np.meshgrid(x, y)
+# Function to plot 3D curve with Plotly or fallback to matplotlib
+def plot_3d_curve(curve_type):
+    t = np.linspace(0, 4*np.pi, 1000)
     
-    if surface_type == "x² + y²":
-        Z = X**2 + Y**2
-    elif surface_type == "sin(x) + cos(y)":
-        Z = np.sin(X) + np.cos(Y)
-    elif surface_type == "x · y":
-        Z = X * Y
-    elif surface_type == "x² - y²":
-        Z = X**2 - Y**2
-    elif surface_type == "e^(-(x² + y²))":
-        Z = np.exp(-(X**2 + Y**2))
-    elif surface_type == "cos(x² + y²)":
-        Z = np.cos(X**2 + Y**2)
-    else:  # "x³ + y³"
-        Z = X**3 + Y**3
+    if curve_type == "Helix":
+        x = np.cos(t)
+        y = np.sin(t)
+        z = t / (2*np.pi)
+    elif curve_type == "Torus Knot":
+        x = (2 + np.cos(3*t)) * np.cos(2*t)
+        y = (2 + np.cos(3*t)) * np.sin(2*t)
+        z = np.sin(3*t)
+    elif curve_type == "Viviani's Curve" or curve_type == "Kurva Viviani":
+        x = np.cos(t)**2
+        y = np.cos(t) * np.sin(t)
+        z = np.sin(t)
+    else:  # "Lissajous 3D"
+        x = np.sin(3*t)
+        y = np.sin(4*t)
+        z = np.cos(5*t)
     
     if plotly_available:
-        if plot_type == "Surface" or plot_type == "Permukaan":
-            fig = go.Figure(data=[go.Surface(z=Z, x=X, y=Y, colorscale='Viridis', showscale=False)])
-        else:  # Wireframe
-            # Create wireframe by plotting lines
-            fig = go.Figure()
-            for i in range(len(x)):
-                fig.add_trace(go.Scatter3d(x=X[i, :], y=Y[i, :], z=Z[i, :], mode='lines', line=dict(color='blue', width=2)))
-            for j in range(len(y)):
-                fig.add_trace(go.Scatter3d(x=X[:, j], y=Y[:, j], z=Z[:, j], mode='lines', line=dict(color='blue', width=2)))
+        fig = go.Figure(data=[go.Scatter3d(x=x, y=y, z=z, mode='lines', line=dict(color='cyan', width=4))])
         fig.update_layout(
-            title="3D Plot (Interactive)",
+            title="3D Curve Plot (Interactive)",
             scene=dict(
                 xaxis_title='x',
                 yaxis_title='y',
@@ -257,14 +245,11 @@ def plot_3d_surface(surface_type, plot_type):
     else:
         fig = plt.figure(figsize=(7, 5))
         ax = fig.add_subplot(111, projection="3d")
-        if plot_type == "Surface" or plot_type == "Permukaan":
-            ax.plot_surface(X, Y, Z, cmap="plasma", edgecolor="none", alpha=0.8)
-        else:  # Wireframe
-            ax.plot_wireframe(X, Y, Z, color='blue', linewidth=1)
+        ax.plot(x, y, z, color='cyan', linewidth=2)
         ax.set_xlabel("x")
         ax.set_ylabel("y")
         ax.set_zlabel("z")
-        ax.set_title("3D Plot (Static)")
+        ax.set_title("3D Curve Plot (Static)")
         st.pyplot(fig)
 
 # Function to analyze story-based problem
@@ -332,12 +317,11 @@ if st.button(current_texts["derivative_button"]):
     plot_derivative(func_str)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 3D Surface Plotting Section
+# 3D Curve Plotting Section
 st.markdown('<div class="card">', unsafe_allow_html=True)
-st.header("🌐 3D Surface Plotting")
-surface_type = st.selectbox(current_texts["surface_select"], current_texts["surfaces"])
-plot_type = st.selectbox(current_texts["plot_type_select"], current_texts["plot_types"])
-plot_3d_surface(surface_type, plot_type)
+st.header("🌐 3D Curve Plotting")
+curve_type = st.selectbox(current_texts["curve_select"], current_texts["curves"])
+plot_3d_curve(curve_type)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Optimization Section
