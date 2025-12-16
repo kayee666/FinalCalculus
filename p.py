@@ -2,6 +2,7 @@ import streamlit as st
 import numpy as np
 import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d import Axes3D
+import re
 
 # Set page config for theme
 st.set_page_config(
@@ -93,6 +94,8 @@ texts = {
         "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
+        "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
+        "solve_story_button": "Solve Story-Based Problem",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
@@ -119,6 +122,8 @@ texts = {
         "surfaces": ["x² + y²", "sin(x) + cos(y)", "x · y"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
+        "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
+        "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
         "members_title": "Penggemar Kalkulus Kami",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
@@ -218,22 +223,48 @@ def plot_3d_surface(surface_type):
     ax.set_title("3D Surface Plot")
     st.pyplot(fig)
 
+# Function to analyze story-based problem
+def analyze_problem(text, lang):
+    text_lower = text.lower()
+    numbers = re.findall(r'\d+', text)
+    param = float(numbers[0]) if numbers else None
+    
+    if lang == "English":
+        if "area" in text_lower and ("maximize" in text_lower or "maximum" in text_lower):
+            return "area", param
+        elif "perimeter" in text_lower and ("minimize" in text_lower or "minimum" in text_lower):
+            return "perimeter", param
+        elif "volume" in text_lower and ("maximize" in text_lower or "maximum" in text_lower):
+            return "volume", param
+        elif "profit" in text_lower and ("maximize" in text_lower or "maximum" in text_lower):
+            return "profit", param
+    elif lang == "Indonesia":
+        if "luas" in text_lower and ("maksimalkan" in text_lower or "maksimum" in text_lower):
+            return "area", param
+        elif "keliling" in text_lower and ("minimalkan" in text_lower or "minimum" in text_lower):
+            return "perimeter", param
+        elif "volume" in text_lower and ("maksimalkan" in text_lower or "maksimum" in text_lower):
+            return "volume", param
+        elif "keuntungan" in text_lower and ("maksimalkan" in text_lower or "maksimum" in text_lower):
+            return "profit", param
+    return None, None
+
 # Function to handle optimization problems
-def solve_optimization(problem, lang):
+def solve_optimization(problem, param=None, lang=None):
     if problem == "area":
-        P = st.number_input("P (Perimeter)", value=20.0)
+        P = param if param else st.number_input("P (Perimeter)", value=20.0)
         x_opt = P / 4
         y_opt = P / 4
         A_max = x_opt * y_opt
         st.success(f"Optimal x: {x_opt}, y: {y_opt}, Max Area: {A_max}")
     elif problem == "perimeter":
-        A = st.number_input("A (Area)", value=100.0)
+        A = param if param else st.number_input("A (Area)", value=100.0)
         x_opt = np.sqrt(A)
         y_opt = A / x_opt
         P_min = 2 * x_opt + 2 * y_opt
         st.success(f"Optimal x: {x_opt}, y: {y_opt}, Min Perimeter: {P_min}")
     elif problem == "volume":
-        S = st.number_input("S (Surface Area)", value=24.0)
+        S = param if param else st.number_input("S (Surface Area)", value=24.0)
         x_opt = np.sqrt(S / 6)
         V_max = x_opt ** 3
         st.success(f"Optimal x=y=z: {x_opt}, Max Volume: {V_max}")
@@ -267,7 +298,20 @@ st.markdown('</div>', unsafe_allow_html=True)
 # Optimization Section
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.header("⚖ " + current_texts["opt_title"])
-problem = st.selectbox(current_texts["opt_select"], list(current_texts["problems"].keys()), format_func=lambda x: current_texts["problems"][x])
-solve_optimization(problem, lang)
-st.markdown('</div>', unsafe_allow_html=True)
 
+# Option to choose between predefined or story-based
+opt_type = st.radio("Choose optimization type:", ["Predefined Problem", "Story-Based Problem"])
+
+if opt_type == "Predefined Problem":
+    problem = st.selectbox(current_texts["opt_select"], list(current_texts["problems"].keys()), format_func=lambda x: current_texts["problems"][x])
+    solve_optimization(problem, lang=lang)
+elif opt_type == "Story-Based Problem":
+    story_text = st.text_area(current_texts["story_input"], "")
+    if st.button(current_texts["solve_story_button"]):
+        problem_type, param = analyze_problem(story_text, lang)
+        if problem_type:
+            solve_optimization(problem_type, param=param, lang=lang)
+        else:
+            st.error("Unable to analyze the problem. Please ensure it involves area, perimeter, volume, or profit with a clear maximize/minimize intent and a numeric parameter.")
+
+st.markdown('</div>', unsafe_allow_html=True)
