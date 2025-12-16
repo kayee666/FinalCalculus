@@ -113,7 +113,7 @@ texts = {
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
         "solve_story_button": "Solve Story-Based Problem",
         "3d_title": "3D Interactive Curve f(x) & Custom Derivative",
-        "members_title": "Our Calculus Enthusiasts",
+        "members_title": "Calculus Group 2",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
             {"name": "Nailah Nurramadhanti", "image": "sayang.jpg", "role": "Member"},
@@ -141,7 +141,7 @@ texts = {
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
         "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
         "3d_title": "Kurva Interaktif 3D f(x) & Turunan Kustom",
-        "members_title": "Penggemar Kalkulus Kami",
+        "members_title": "Calculus Grup 2",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
             {"name": "Nailah Nurramadhanti", "image": "https://via.placeholder.com/60x60?text=NAILAH", "role": "Member"},
@@ -340,3 +340,4 @@ elif opt_type == "Story-Based Problem":
             st.error("Unable to analyze the problem. Please ensure it involves area, perimeter, volume, or profit with a clear maximize/minimize intent and a numeric parameter.")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
