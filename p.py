@@ -81,6 +81,15 @@ st.markdown("""
         margin-bottom: 20px;
         box-shadow: 0 8px 32px rgba(0,0,0,0.3);
     }
+
+    /* SUB-BOX */
+    .sub-box {
+        background-color: #e0f7ff !important;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -95,14 +104,13 @@ texts = {
         "function_input": "Enter a function of x (e.g., lambda x: x**2 + 3*x + 1):",
         "plot_button": "Plot 2D Function",
         "derivative_button": "Compute and Plot Derivative",
-        "3d_button": "Plot 3D Curve",
+        "3d_button": "Plot 3D Interactive Curve",
         "3d_input": "Enter a 3D function of x and y (e.g., lambda x, y: x**2 + y**2):",
-        "curve_select": "Choose a curve:",
-        "curves": ["Helix", "Torus Knot", "Viviani's Curve", "Lissajous 3D"],
         "opt_title": "Optimization Problems",
         "opt_select": "Select a problem:",
         "story_input": "Enter a story-based problem (e.g., 'Maximize the area of a rectangle with perimeter 20.'):",
         "solve_story_button": "Solve Story-Based Problem",
+        "3d_title": "3D Interactive Curve f(x) & f'(x)",
         "members_title": "Our Calculus Enthusiasts",
         "members": [
             {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
@@ -123,14 +131,13 @@ texts = {
         "function_input": "Masukkan fungsi dari x (contoh: lambda x: x**2 + 3*x + 1):",
         "plot_button": "Plot Fungsi 2D",
         "derivative_button": "Hitung dan Plot Turunan",
-        "3d_button": "Plot Kurva 3D",
+        "3d_button": "Plot Kurva Interaktif 3D",
         "3d_input": "Masukkan fungsi 3D dari x dan y (contoh: lambda x, y: x**2 + y**2):",
-        "curve_select": "Pilih kurva:",
-        "curves": ["Helix", "Torus Knot", "Kurva Viviani", "Lissajous 3D"],
         "opt_title": "Masalah Optimasi",
         "opt_select": "Pilih masalah:",
         "story_input": "Masukkan masalah berbasis cerita (contoh: 'Maksimalkan luas persegi panjang dengan keliling 20.'):",
         "solve_story_button": "Selesaikan Masalah Berbasis Cerita",
+        "3d_title": "Kurva Interaktif 3D f(x) & f'(x)",
         "members_title": "Penggemar Kalkulus Kami",
         "members": [
             {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
@@ -208,49 +215,31 @@ def plot_derivative(func_str):
     except Exception as e:
         st.error(f"Error plotting derivative: {e}")
 
-# Function to plot 3D curve with Plotly or fallback to matplotlib
-def plot_3d_curve(curve_type):
-    t = np.linspace(0, 4*np.pi, 1000)
-    
-    if curve_type == "Helix":
-        x = np.cos(t)
-        y = np.sin(t)
-        z = t / (2*np.pi)
-    elif curve_type == "Torus Knot":
-        x = (2 + np.cos(3*t)) * np.cos(2*t)
-        y = (2 + np.cos(3*t)) * np.sin(2*t)
-        z = np.sin(3*t)
-    elif curve_type == "Viviani's Curve" or curve_type == "Kurva Viviani":
-        x = np.cos(t)**2
-        y = np.cos(t) * np.sin(t)
-        z = np.sin(t)
-    else:  # "Lissajous 3D"
-        x = np.sin(3*t)
-        y = np.sin(4*t)
-        z = np.cos(5*t)
-    
-    if plotly_available:
-        fig = go.Figure(data=[go.Scatter3d(x=x, y=y, z=z, mode='lines', line=dict(color='cyan', width=4))])
-        fig.update_layout(
-            title="3D Curve Plot (Interactive)",
-            scene=dict(
-                xaxis_title='x',
-                yaxis_title='y',
-                zaxis_title='z',
-                camera=dict(eye=dict(x=1.25, y=1.25, z=1.25))
-            ),
-            margin=dict(l=0, r=0, b=0, t=40)
-        )
-        st.plotly_chart(fig, use_container_width=True)
-    else:
-        fig = plt.figure(figsize=(7, 5))
-        ax = fig.add_subplot(111, projection="3d")
-        ax.plot(x, y, z, color='cyan', linewidth=2)
-        ax.set_xlabel("x")
-        ax.set_ylabel("y")
-        ax.set_zlabel("z")
-        ax.set_title("3D Curve Plot (Static)")
-        st.pyplot(fig)
+# Function to plot 3D interactive curve
+def plot_3d_interactive(func_str):
+    try:
+        func = eval(func_str)
+        x_vals = np.linspace(-10, 10, 400)
+        y_vals = func(x_vals)
+        dy_vals = np.gradient(y_vals, x_vals)
+        z_vals = np.zeros_like(x_vals)
+        z_vals2 = np.ones_like(x_vals)
+
+        if plotly_available:
+            fig3d = go.Figure()
+            fig3d.add_trace(go.Scatter3d(x=x_vals, y=y_vals, z=z_vals, mode='lines',
+                                         line=dict(color='lightblue', width=5), name='f(x)'))
+            fig3d.add_trace(go.Scatter3d(x=x_vals, y=dy_vals, z=z_vals2, mode='lines',
+                                         line=dict(color='pink', width=5), name="f'(x)"))
+            fig3d.update_layout(scene=dict(xaxis_title='x', yaxis_title='y', zaxis_title='Curve ID',
+                                           bgcolor='rgba(0,0,0,0)'),
+                                margin=dict(l=0, r=0, b=0, t=0), height=600)
+            st.plotly_chart(fig3d, use_container_width=True)
+        else:
+            st.warning("Plotly is required for 3D interactive plot.")
+    except Exception as e:
+        st.error("Error processing the function.")
+        st.error(str(e))
 
 # Function to analyze story-based problem
 def analyze_problem(text, lang):
@@ -317,11 +306,13 @@ if st.button(current_texts["derivative_button"]):
     plot_derivative(func_str)
 st.markdown('</div>', unsafe_allow_html=True)
 
-# 3D Curve Plotting Section
+# 3D Interactive Curve Plotting Section
 st.markdown('<div class="card">', unsafe_allow_html=True)
-st.header("🌐 3D Curve Plotting")
-curve_type = st.selectbox(current_texts["curve_select"], current_texts["curves"])
-plot_3d_curve(curve_type)
+st.header("🌐 3D Interactive Curve Plotting")
+st.markdown("<div class='sub-box'>", unsafe_allow_html=True)
+st.subheader(current_texts["3d_title"])
+plot_3d_interactive(func_str)
+st.markdown("</div>", unsafe_allow_html=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Optimization Section
