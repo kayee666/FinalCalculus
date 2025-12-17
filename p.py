@@ -143,10 +143,10 @@ texts = {
         "3d_title": "Kurva Interaktif 3D f(x) & Turunan Kustom",
         "members_title": "Calculus Grup 2",
         "members": [
-            {"name": "Rizki Adiputra", "image": "https://via.placeholder.com/60x60?text=KI", "role": "Leader"},
-            {"name": "Nailah Nurramadhanti", "image": "https://via.placeholder.com/60x60?text=NAILAH", "role": "Member"},
-            {"name": "Suci Khadijah Siregar", "image": "https://via.placeholder.com/60x60?text=SUCI", "role": "Member"},
-            {"name": "Salsabila Cantika", "image": "https://via.placeholder.com/60x60?text=CANTIKA", "role": "Member"}
+            {"name": "Rizki Adiputra", "image": "ki.jpg", "role": "Leader"},
+            {"name": "Nailah Nurramadhanti", "image": "sayang.jpg", "role": "Member"},
+            {"name": "Suci Khadijah Siregar", "image": "suci.jpg", "role": "Member"},
+            {"name": "Salsabila Cantika", "image": "cantika.jpg", "role": "Member"}
         ],
         "problems": {
             "area": "Maksimalkan luas persegi panjang dengan keliling tetap.",
@@ -340,4 +340,5 @@ elif opt_type == "Story-Based Problem":
             st.error("Unable to analyze the problem. Please ensure it involves area, perimeter, volume, or profit with a clear maximize/minimize intent and a numeric parameter.")
 
 st.markdown('</div>', unsafe_allow_html=True)
+
 
